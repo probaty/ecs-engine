@@ -1,35 +1,14 @@
 import { Container } from "pixi.js";
-import type { Component, ComponentConstructor } from "./Component";
+import { Entity } from "./Entity";
 
-export class PixiEntity extends Container {
-	private _components = new WeakMap<ComponentConstructor, Component>();
-	public id: string;
-	constructor() {
+export class PixiEntity extends Entity {
+	private _pixiContainer: Container;
+	constructor(pixiContainer: Container) {
 		super();
-		this.id = crypto.randomUUID();
+		this._pixiContainer = pixiContainer;
 	}
 
-	/**
-	 * addComponent
-	 */
-	public addComponent(component: Component) {
-		const compConstructor = component.constructor as ComponentConstructor;
-		this._components.set(compConstructor, component);
-	}
-
-	/**
-	 * getComponent
-	 */
-	public getComponent(component: Component) {
-		const compConstructor = component.constructor as ComponentConstructor;
-		return this._components.get(compConstructor);
-	}
-
-	/**
-	 * hasComponent
-	 */
-	public hasComponent(component: Component) {
-		const compConstructor = component.constructor as ComponentConstructor;
-		return this._components.has(compConstructor);
+	public get pixiContainer(): Container {
+		return this._pixiContainer;
 	}
 }
