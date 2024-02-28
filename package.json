@@ -1,19 +1,19 @@
 {
-	"name": "ecs-engine",
-	"module": "index.ts",
-	"type": "module",
-	"scripts": {
-		"dev": "vite --host"
-	},
-	"devDependencies": {
-		"@types/bun": "latest",
-		"vite": "^5.1.4"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0",
-		"pixi.js": "^7.4.0"
-	},
-	"dependencies": {
-		"pixi.js": "^7.4.0"
-	}
+  "name": "ecs-engine",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "vite": "^5.1.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0",
+    "pixi.js": "^7.4.0"
+  },
+  "dependencies": {
+    "pixi.js": "^7.4.0"
+  }
 }

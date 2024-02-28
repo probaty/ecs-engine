@@ -50,4 +50,7 @@ export class PositionComponent extends Component {
 		}
 		this._height = height;
 	}
+	set pixiContainer(pixiContainer: Container) {
+		this._pixiContainer = pixiContainer;
+	}
 }

@@ -49,4 +49,7 @@ export class PositionComponent extends Component {
 		}
 		this._y = y;
 	}
+	set pixiContainer(pixiContainer: Container) {
+		this._pixiContainer = pixiContainer;
+	}
 }

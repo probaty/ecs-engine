@@ -1,7 +1,8 @@
 import type { Application } from "pixi.js";
+import type { BasicGameState } from "./Game";
 
-export abstract class Addon<GS> {
+export abstract class Addon<GS = BasicGameState> {
 	public abstract name: string;
-	public abstract onCreate(gameState: GS, app: Application): void;
-	public abstract onDestroy(gameState: GS, app: Application): void;
+	public abstract onCreate(gameState: GS): void;
+	public abstract onDestroy(gameState: GS): void;
 }

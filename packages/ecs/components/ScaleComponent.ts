@@ -49,4 +49,7 @@ export class ScaleComponent extends Component {
 		}
 		this._scaleY = scaleY;
 	}
+	set pixiContainer(pixiContainer: Container) {
+		this._pixiContainer = pixiContainer;
+	}
 }

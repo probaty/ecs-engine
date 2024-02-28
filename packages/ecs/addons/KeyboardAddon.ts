@@ -1,4 +1,5 @@
 import { Addon } from "../core/Addon";
+import type { BasicGameState } from "../core/Game";
 
 const keyboardMap: Record<string, string> = {
 	KeyA: "a",
@@ -14,7 +15,22 @@ const keyboardMap: Record<string, string> = {
 	ArrowDown: "down",
 };
 
-export class KeyboardAddon<GS extends Record<string, any>> extends Addon<GS> {
+export type KeyboardGS = {
+	keyboard: {
+		keys: Record<string, boolean>;
+		otherKeys: Record<string, boolean>;
+		direction: {
+			up: boolean;
+			down: boolean;
+			left: boolean;
+			right: boolean;
+		};
+	};
+};
+
+type GS = BasicGameState & KeyboardGS;
+
+export class KeyboardAddon extends Addon<GS> {
 	public name: string = "keyboard";
 	public onCreate(gameState: GS): void {
 		gameState.keyboard.keys = {};
@@ -37,7 +53,7 @@ export class KeyboardAddon<GS extends Record<string, any>> extends Addon<GS> {
 	private _handleKeyDown(gameState: GS, event: KeyboardEvent) {
 		const key = keyboardMap[event.code];
 		if (key) {
-			gameState.keyboard[key] = true;
+			gameState.keyboard.keys[key] = true;
 			const dir = getDirection(key);
 			if (dir) {
 				gameState.keyboard.direction[dir] = true;
@@ -50,7 +66,7 @@ export class KeyboardAddon<GS extends Record<string, any>> extends Addon<GS> {
 	private _handleKeyUp(gameState: GS, event: KeyboardEvent) {
 		const key = keyboardMap[event.code];
 		if (key) {
-			gameState.keyboard[key] = false;
+			gameState.keyboard.keys[key] = false;
 			const dir = getDirection(key);
 			if (dir) {
 				gameState.keyboard.direction[dir] = false;
