@@ -1,115 +1,152 @@
-import { Container } from "pixi.js";
+import { Container, Ticker } from "pixi.js";
 import type { System } from "./System";
-import type { Game } from "./Game";
-import type { PixiEntity } from "./PixiEntity";
+import type { BasicGameState, Game } from "./Game";
+import { Component, type ComponentConstructor } from "./Component";
 import type { Entity } from "./Entity";
-import type { EntityType } from "../types/EntityType";
-import type { Component } from "./Component";
 
 export const enum SystemType {
-	UPDATE = "update",
-	ON_CREATE = "onCreate",
-	ON_DESTROY = "onDestroy",
+  UPDATE = "update",
+  ON_CREATE = "onCreate",
+  ON_DESTROY = "onDestroy",
 }
 
 const systemMapTemplate: [SystemType, System[]][] = [
-	[SystemType.UPDATE, []],
-	[SystemType.ON_CREATE, []],
-	[SystemType.ON_DESTROY, []],
+  [SystemType.UPDATE, []],
+  [SystemType.ON_CREATE, []],
+  [SystemType.ON_DESTROY, []],
 ];
 
 type ComponentQuery = (Component[] | Component)[];
 
 export class Scene {
-	private _systems = new Map<SystemType, System[]>(systemMapTemplate);
-	private _mappedSystems = new WeakMap<System, ComponentQuery>();
-	private _entities = new Set<EntityType>();
-	public name: string;
-	private _scene: Container = new Container();
+  private _systems = new Map<SystemType, System[]>(systemMapTemplate);
+  private _mappedSystems = new WeakMap<System, ComponentQuery>();
+  private _entities = new Set<Entity>();
+  public name: string;
+  private _scene: Container = new Container();
+  public ticker = new Ticker()
 
-	constructor(name: string) {
-		this.name = name;
-	}
+  constructor(name: string) {
+    this.name = name;
+  }
 
-	/**
-	 * addEntity
-	 */
-	public addEntity(entity: EntityType) {
-		this._entities.add(entity);
-		this.createSystemMap();
-	}
+  /**
+   * run
+   */
+  public run(gs: BasicGameState) {
+    console.log(this._entities, this._systems, this._mappedSystems);
 
-	public addSystem(system: System, type: SystemType = SystemType.UPDATE) {
-		const systemsList = this._systems.get(type);
-		if (!systemsList) {
-			throw new Error(`System ${type} not found`);
-		}
-		systemsList.push(system);
-		this.createSystemMap();
-	}
+    this._entities.forEach(ent => {
+      this._scene.addChild(ent.pixiContainer)
+    })
+    this.ticker.autoStart = false
+    this.ticker.stop()
 
-	/**
-	 * update
-	 */
-	public update(delta: number, gameState: any) {
-		this._systems.get(SystemType.UPDATE)!.forEach((system) => {
-			const components = this._mappedSystems.get(system);
-			if (components && system?.update) {
-				system.update(gameState, components, delta);
-			}
-		});
-	}
+    this.ticker.addOnce(() => {
+      this.onCreate(gs)
+    })
+    this.ticker.add((dt) => {
+      this.update(dt, gs)
+    })
+    return this.ticker
+  }
 
-	/**
-	 * onCreate
-	 */
-	public onCreate(gameState: any) {
-		this._systems.get(SystemType.ON_CREATE)!.forEach((system) => {
-			const components = this._mappedSystems.get(system);
-			if (components && system?.update) {
-				system.update(gameState, components);
-			}
-		});
-	}
+  /**
+   * addEntity
+   */
+  public addEntity(entity: Entity) {
+    this._entities.add(entity);
+    this.createSystemMap();
+  }
 
-	/**
-	 * onDestroy
-	 */
-	public onDestroy(gameState: any) {
-		this._systems.get(SystemType.ON_DESTROY)!.forEach((system) => {
-			const components = this._mappedSystems.get(system);
-			if (components && system?.update) {
-				system.update(gameState, components);
-			}
-		});
-	}
+  public addSystem(system: System<any>, type: SystemType = SystemType.UPDATE) {
+    const systemsList = this._systems.get(type);
+    if (!systemsList) {
+      throw new Error(`System ${type} not found`);
+    }
+    systemsList.push(system);
+    this.createSystemMap();
+  }
 
-	private createSystemMap() {
-		this._systems.forEach((systems) => {
-			systems.forEach((system) => {
-				this._mappedSystems.set(system, this.findEntityByQuery.call(this, system.query));
-			});
-		});
-	}
+  /**
+   * update
+   */
+  public update(delta: number, gameState: any) {
+    this._systems.get(SystemType.UPDATE)!.forEach((system) => {
+      const components = this._mappedSystems.get(system);
+      if (components && system?.update) {
+        system.update(gameState, components, delta);
+      }
+    });
+  }
 
-	private findEntityByQuery(query: Component[] | Component): ComponentQuery {
-		const entities: ComponentQuery = [];
-		this._entities.forEach((entity) => {
-			if (Array.isArray(query)) {
-				const tempComponents: Component[] = [];
-				if (query.every((q) => entity.hasComponent(q) && tempComponents.push(q))) {
-					entities.push([...tempComponents]);
-				}
-			} else {
-				if (entity.hasComponent(query)) {
-					entities.push(entity);
-				}
-			}
-		});
-		return entities;
-	}
+  /**
+   * onCreate
+   */
+  public onCreate(gameState: any) {
+    this._systems.get(SystemType.ON_CREATE)!.forEach((system) => {
+      const components = this._mappedSystems.get(system);
+      if (components && system?.onCreate) {
+        system.onCreate(gameState, components);
+      }
+    });
+  }
 
-	public get scene(): Container {
-		return this._scene;
-	}
+  /**
+   * onDestroy
+   */
+  public onDestroy(gameState: any) {
+    this._systems.get(SystemType.ON_DESTROY)!.forEach((system) => {
+      const components = this._mappedSystems.get(system);
+      if (components && system?.onDestroy) {
+        system.onDestroy(gameState, components);
+      }
+    });
+  }
+
+  private createSystemMap() {
+    this._systems.forEach((systems) => {
+      systems.forEach((system) => {
+        this._mappedSystems.set(system, this.findEntityByQuery.call(this, system.query));
+      });
+    });
+  }
+
+  private findEntityByQuery(query: ComponentConstructor[] | ComponentConstructor): ComponentQuery {
+    const entities: ComponentQuery = [];
+    this._entities.forEach((entity) => {
+      if (Array.isArray(query)) {
+        const tempComponents: Component[] = [];
+        let all = true
+        for (const comp of query) {
+          if (entity.hasComponent(comp)) {
+            const componentValue = entity.getComponent(comp)
+            if (!componentValue) {
+              all = false
+              break
+            }
+            tempComponents.push(componentValue)
+            continue
+          }
+          all = false
+          break
+        }
+        if (all) {
+          entities.push([...tempComponents]);
+        }
+      } else {
+        if (entity.hasComponent(query)) {
+          const componentValue = entity.getComponent(query)
+          if (componentValue) {
+            entities.push(componentValue);
+          }
+        }
+      }
+    });
+    return entities;
+  }
+
+  public get scene(): Container {
+    return this._scene;
+  }
 }
