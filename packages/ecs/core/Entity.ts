@@ -1,33 +1,35 @@
+import { Container } from "pixi.js";
 import type { Component, ComponentConstructor } from "./Component";
 
 export class Entity {
-	private _components = new WeakMap<ComponentConstructor, Component>();
-	public id: string;
-	constructor() {
-		this.id = crypto.randomUUID();
-	}
+  public id: string;
+  protected _components = new WeakMap<ComponentConstructor, Component>();
+  private _pixiContainer: Container;
+  constructor(pixiContainer: Container) {
+    this.id = crypto.randomUUID();
+    this._pixiContainer = pixiContainer;
+  }
 
-	/**
-	 * addComponent
-	 */
-	public addComponent(component: Component) {
-		const compConstructor = component.constructor as ComponentConstructor;
-		this._components.set(compConstructor, component);
-	}
+  public addComponent(component: Component) {
+    component.pixiContainer = this._pixiContainer
+    const compConstructor = component.constructor as ComponentConstructor;
+    this._components.set(compConstructor, component);
+  }
 
-	/**
-	 * getComponent
-	 */
-	public getComponent(component: Component) {
-		const compConstructor = component.constructor as ComponentConstructor;
-		return this._components.get(compConstructor);
-	}
 
-	/**
-	 * hasComponent
-	 */
-	public hasComponent(component: Component) {
-		const compConstructor = component.constructor as ComponentConstructor;
-		return this._components.has(compConstructor);
-	}
+  /**
+   * hasComponent
+   */
+  public hasComponent(component: ComponentConstructor) {
+    return this._components.has(component);
+  }
+  /**
+   * getComponent
+   */
+  public getComponent(component: ComponentConstructor) {
+    return this._components.get(component);
+  }
+  public get pixiContainer(): Container {
+    return this._pixiContainer;
+  }
 }
