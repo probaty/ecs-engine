@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/stats.js": "^0.17.3",
     "vite": "^5.1.4"
   },
   "peerDependencies": {
@@ -14,6 +15,8 @@
     "pixi.js": "^7.4.0"
   },
   "dependencies": {
-    "pixi.js": "^7.4.0"
+    "box2d-wasm": "^7.0.0",
+    "pixi.js": "^7.4.0",
+    "stats.js": "^0.17.0"
   }
 }
