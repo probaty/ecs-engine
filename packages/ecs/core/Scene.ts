@@ -8,20 +8,23 @@ export const enum SystemType {
   UPDATE = "update",
   ON_CREATE = "onCreate",
   ON_DESTROY = "onDestroy",
+  ON_CREATE_ENTITY = 'onCreateEntity',
 }
 
-const systemMapTemplate: [SystemType, System[]][] = [
-  [SystemType.UPDATE, []],
-  [SystemType.ON_CREATE, []],
-  [SystemType.ON_DESTROY, []],
+const systemMapTemplate: [SystemType, Set<System>][] = [
+  [SystemType.UPDATE, new Set()],
+  [SystemType.ON_CREATE, new Set()],
+  [SystemType.ON_DESTROY, new Set()],
+  [SystemType.ON_CREATE_ENTITY, new Set()],
 ];
 
 type ComponentQuery = (Component[] | Component)[];
 
 export class Scene {
-  private _systems = new Map<SystemType, System[]>(systemMapTemplate);
+  private _systems = new Map<SystemType, Set<System>>(systemMapTemplate);
   private _mappedSystems = new WeakMap<System, ComponentQuery>();
   private _entities = new Set<Entity>();
+  private _gameState?: BasicGameState;
   public name: string;
   private _scene: Container = new Container();
   public ticker = new Ticker()
@@ -33,17 +36,17 @@ export class Scene {
   /**
    * run
    */
-  public run(gs: BasicGameState) {
-    console.log(this._entities, this._systems, this._mappedSystems);
-
-    this._entities.forEach(ent => {
-      this._scene.addChild(ent.pixiContainer)
-    })
+  public run(gs: BasicGameState, stats?: any) {
+    this._gameState = gs
     this.ticker.autoStart = false
     this.ticker.stop()
+    if (stats) {
+      this.ticker.add(stats.begin)
+    }
 
     this.ticker.addOnce(() => {
       this.onCreate(gs)
+      this.onCreateEntity(gs)
     })
     this.ticker.add((dt) => {
       this.update(dt, gs)
@@ -54,18 +57,43 @@ export class Scene {
   /**
    * addEntity
    */
-  public addEntity(entity: Entity) {
-    this._entities.add(entity);
+  public addEntity(entity: Entity | Entity[]) {
+    if (Array.isArray(entity)) {
+      for (const ent of entity) {
+        this._entities.add(ent)
+        this._scene.addChild(ent.pixiContainer)
+      }
+    } else {
+      this._entities.add(entity);
+      this._scene.addChild(entity.pixiContainer)
+    }
     this.createSystemMap();
+    if (this.ticker.started && this._gameState) {
+      this.ticker.addOnce(() => {
+        this.onCreateEntity(this._gameState)
+      })
+    }
   }
 
-  public addSystem(system: System<any>, type: SystemType = SystemType.UPDATE) {
-    const systemsList = this._systems.get(type);
-    if (!systemsList) {
+  public addSystem(system: System<any>[], type: Omit<SystemType, 'onCreateEntity'> = SystemType.UPDATE) {
+    const systemsList = this._systems.get(type as SystemType);
+    const onCreateEntityList = this._systems.get(SystemType.ON_CREATE_ENTITY)
+    if (!systemsList || !onCreateEntityList) {
       throw new Error(`System ${type} not found`);
     }
-    systemsList.push(system);
+    for (const sys of system) {
+      if ('onCreateEntity' in sys) {
+        onCreateEntityList.add(sys)
+      }
+      systemsList.add(sys);
+    }
     this.createSystemMap();
+    if (this.ticker.started && this._gameState) {
+      this.ticker.addOnce(() => {
+        this.onCreateEntity(this._gameState)
+        this.onCreate(this._gameState)
+      })
+    }
   }
 
   /**
@@ -88,6 +116,19 @@ export class Scene {
       const components = this._mappedSystems.get(system);
       if (components && system?.onCreate) {
         system.onCreate(gameState, components);
+      }
+    });
+  }
+
+
+  /**
+   * onCreateEntity
+   */
+  public onCreateEntity(gameState: any) {
+    this._systems.get(SystemType.ON_CREATE_ENTITY)!.forEach((system) => {
+      const components = this._mappedSystems.get(system);
+      if (components && system?.onCreateEntity) {
+        system.onCreateEntity(gameState, components);
       }
     });
   }

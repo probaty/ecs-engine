@@ -4,10 +4,9 @@ import type { Component, ComponentConstructor } from "./Component";
 export class Entity {
   public id: string;
   protected _components = new WeakMap<ComponentConstructor, Component>();
-  private _pixiContainer: Container;
-  constructor(pixiContainer: Container) {
+  private _pixiContainer: Container = new Container();
+  constructor() {
     this.id = crypto.randomUUID();
-    this._pixiContainer = pixiContainer;
   }
 
   public addComponent(component: Component) {

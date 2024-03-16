@@ -32,7 +32,7 @@ export class Game extends Application {
     options = { ...defaultOptions, ...options };
     super(options);
     this._stats = new Stats()
-    this._stats.showPanel(1)
+    this._stats.showPanel(0)
     document.body.appendChild(this._stats.dom)
 
     document.body.appendChild(this.view as HTMLCanvasElement);
@@ -44,6 +44,8 @@ export class Game extends Application {
       game: this,
       tickers: new Set()
     };
+    //@ts-ignore
+    globalThis.__PIXI_APP__ = this;
   }
 
   /**
@@ -57,8 +59,7 @@ export class Game extends Application {
     })
     if (this._currentScene) {
       this.stage.addChild(this._currentScene.scene)
-      this.ticker = this._currentScene.run(this.gameState)
-      this.ticker.add(this._stats.begin)
+      this.ticker = this._currentScene.run(this.gameState, this._stats)
       this.gameState.tickers.forEach(t => {
         this.ticker.add(t)
       })
