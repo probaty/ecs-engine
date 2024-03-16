@@ -1,3 +1,4 @@
+import type { Ticker } from "pixi.js";
 import { Addon } from "../core/Addon";
 import type { BasicGameState } from "../core/Game";
 import Box2DFactory from 'box2d-wasm'
@@ -44,10 +45,11 @@ export class PhisicsAddon extends Addon<GS> {
   public onCreate(gameState: GS): void {
     const { b2World, b2Vec2 } = this._box2d
     gameState.physics.world = new b2World(new b2Vec2(this._gravity.x, this._gravity.y))
-    gameState.tickers.add((dt: number) => {
-      if (!dt || isNaN(dt)) dt = 1
+    gameState.tickers.add((ticker: Ticker) => {
+      let dt = ticker.deltaTime
       gameState.physics.world.Step(dt / 60, 3, 2)
     })
+
     gameState.physics.b2box = this._box2d
     gameState.physics.pixelsPerMeter = this._pixelsPerMeter
 

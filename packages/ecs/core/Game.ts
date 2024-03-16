@@ -1,17 +1,17 @@
-import { Application, type IApplicationOptions } from "pixi.js";
+import { Application, type ApplicationOptions, type TickerCallback } from "pixi.js";
 import type { Addon } from "./Addon";
 import { Scene } from "./Scene";
 import Stats from "stats.js";
 
 type Options = {};
-export type GameOptions = Partial<Options> & Partial<IApplicationOptions>;
+export type GameOptions = Partial<Options> & Partial<ApplicationOptions>;
 export type BasicGameState = {
   view: {
     width: number;
     height: number;
   };
   game: Game;
-  tickers: Set<(dt: number) => void>
+  tickers: Set<TickerCallback<unknown>>
 } & Record<string, unknown>;
 
 const defaultOptions: GameOptions = {
@@ -21,31 +21,44 @@ const defaultOptions: GameOptions = {
 };
 
 export class Game extends Application {
-  public gameState: BasicGameState;
+  public gameState!: BasicGameState;
 
   private _addons = new Set<Addon<unknown>>();
   private _scenes = new Map<string, Scene>()
   private _currentScene: Scene | null = null
-  private _stats: Stats
+  private _stats!: Stats
+  private _options: GameOptions
 
   constructor(options?: GameOptions) {
-    options = { ...defaultOptions, ...options };
-    super(options);
+    super();
+    this._options = { ...defaultOptions, ...options };
+    this.gameState = {
+      game: this,
+      tickers: new Set(),
+      view: {
+        width: 0,
+        height: 0,
+      }
+    };
+  }
+
+  /**
+   * create
+   */
+  public async create() {
+    await this.init(this._options)
     this._stats = new Stats()
     this._stats.showPanel(0)
     document.body.appendChild(this._stats.dom)
 
-    document.body.appendChild(this.view as HTMLCanvasElement);
-    this.gameState = {
-      view: {
-        width: this.view.width,
-        height: this.view.height,
-      },
-      game: this,
-      tickers: new Set()
-    };
-    //@ts-ignore
-    globalThis.__PIXI_APP__ = this;
+    document.body.appendChild(this.canvas as HTMLCanvasElement);
+    this.gameState.view = {
+      width: this.canvas.width,
+      height: this.canvas.height,
+    },
+
+      //@ts-ignore
+      globalThis.__PIXI_APP__ = this;
   }
 
   /**
