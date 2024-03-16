@@ -3,7 +3,7 @@ import { Component } from "../core/Component";
 
 
 type RigbodyComponentArgs = {
-  shape: 'line' | 'circle' | 'box' | 'polygon',
+  shape: 'line' | 'circle' | 'rect',
   type: 'dynamic' | 'static' | 'kinematic',
 }
 

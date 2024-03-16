@@ -25,11 +25,10 @@ export const RigbodySystem = createSystem<[RigbodyComponent, PositionComponent, 
           rig.body = body
         }
 
-        const position = rig.body.GetPosition()
-        console.log(position.y, rig.body.GetTransform());
-
-        pos.x = position.x * pixelsPerMeter
-        pos.y = position.y * pixelsPerMeter
+        const transform = rig.body.GetTransform()
+        pos.x = transform.p.x * pixelsPerMeter
+        pos.y = transform.p.y * pixelsPerMeter
+        pos.angle = transform.q.GetAngle()
       }
     },
   }
@@ -69,14 +68,29 @@ function createFixture(shape: Box2D.b2Shape, b2Box: B2BoxType, rig: RigbodyCompo
   }
 }
 
+function findOffest(pos: PositionComponent): [number, number] {
+  let offsetX = 0
+  let offsetY = 0
+  while (pos.x - offsetX > 0) {
+    offsetX++
+  }
+  while (pos.y - offsetY > 0) {
+    offsetY++
+  }
+  return [offsetX, offsetY]
+}
 
 function calcLinePos([_, pos, size]: ComponentsTurple, vec2: B2BoxType['b2Vec2'], pm: number) {
-  const pos1 = new vec2(pos.x / pm, pos.y / pm)
-  const pos2 = new vec2((pos.x + size.width) / pm, (pos.y + size.height) / pm)
+  const [offsetX, offsetY] = findOffest(pos)
+  console.log(offsetX, offsetY);
+
+  const pos1 = new vec2((pos.x - offsetX) / pm, (pos.y - offsetY) / pm)
+  const pos2 = new vec2((pos.x - offsetX + size.width) / pm, (pos.y - offsetY + size.height) / pm)
   return [pos1, pos2]
 }
 
 function createShape(b2box: B2BoxType, [rig, pos, size]: ComponentsTurple, pixelPerMeter: number) {
+  const { b2Vec2 } = b2box
   switch (rig.options.shape) {
     case 'line': {
       const shape = new b2box.b2EdgeShape()
@@ -89,14 +103,10 @@ function createShape(b2box: B2BoxType, [rig, pos, size]: ComponentsTurple, pixel
       shape.set_m_radius(size.width / 2 / pixelPerMeter)
       return shape
     }
-    case "box": {
+    case "rect": {
       const shape = new b2box.b2PolygonShape()
-      shape.SetAsBox(size.width / 2 / pixelPerMeter, size.height / 2 / pixelPerMeter)
+      shape.SetAsBox(size.width / 2 / pixelPerMeter, size.height / 2 / pixelPerMeter, new b2Vec2(0, 0), 0)
       return shape
-    }
-
-    case "polygon": {
-
     }
 
   }
