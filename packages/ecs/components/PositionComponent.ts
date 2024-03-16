@@ -4,8 +4,9 @@ import { Component } from "../core/Component";
 export class PositionComponent extends Component {
   private _x = 0;
   private _y = 0;
+  private _angle = 0
 
-  constructor(params?: { x?: number; y?: number }) {
+  constructor(params?: { x?: number; y?: number, angle?: number }) {
     super();
     if (!params) return
     if (params.x !== undefined) {
@@ -14,6 +15,13 @@ export class PositionComponent extends Component {
     if (params.y !== undefined) {
       this._y = params.y;
     }
+    if (params.angle !== undefined) {
+      this._angle = params.angle
+    }
+  }
+
+  public get angle(): number {
+    return this._angle;
   }
 
   public get x(): number {
@@ -37,6 +45,14 @@ export class PositionComponent extends Component {
     }
     this._y = y;
   }
+
+  public set angle(angle: number) {
+    if (this._pixiContainer) {
+      this._pixiContainer.rotation = angle;
+    }
+    this._angle = angle
+  }
+
   set pixiContainer(pixiContainer: Container) {
     this._pixiContainer = pixiContainer;
     this._pixiContainer.position.x = this._x
