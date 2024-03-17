@@ -20,7 +20,6 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
             }
           }
           g.rect(0, 0, sizes.width, sizes.width)
-          g.pivot.set(sizes.width / 2, sizes.width / 2)
           break
         }
         case "circle": {
@@ -30,7 +29,7 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
               radius: size.width
             }
           }
-          g.circle(0, 0, sizes.radius / 2)
+          g.circle(sizes.radius / 2, sizes.radius / 2, sizes.radius / 2)
           break
         }
         case "rect": {
@@ -42,7 +41,6 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
             }
           }
           g.rect(0, 0, sizes.width, sizes.height)
-          g.pivot.set(sizes.width / 2, sizes.height / 2)
           break
         }
         default:

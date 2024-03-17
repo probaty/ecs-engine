@@ -27,6 +27,7 @@ export class SizeComponent extends Component {
   public set width(width: number) {
     if (this._pixiContainer) {
       this._pixiContainer.x = width;
+      this._pixiContainer.pivot.x = width / 2;
     }
     this._width = width;
   }
@@ -34,6 +35,7 @@ export class SizeComponent extends Component {
   public set height(height: number) {
     if (this._pixiContainer) {
       this._pixiContainer.height = height;
+      this._pixiContainer.pivot.y = height / 2;
     }
     this._height = height;
   }
@@ -41,5 +43,6 @@ export class SizeComponent extends Component {
     this._pixiContainer = pixiContainer;
     this._pixiContainer.width = this._width
     this._pixiContainer.height = this._height
+    this._pixiContainer.pivot.set(this._width / 2, this._height / 2)
   }
 }
