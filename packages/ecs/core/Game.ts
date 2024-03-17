@@ -55,10 +55,10 @@ export class Game extends Application {
     this.gameState.view = {
       width: this.canvas.width,
       height: this.canvas.height,
-    },
+    }
 
-      //@ts-ignore
-      globalThis.__PIXI_APP__ = this;
+    //@ts-ignore
+    globalThis.__PIXI_APP__ = this;
   }
 
   /**
