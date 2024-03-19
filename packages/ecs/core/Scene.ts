@@ -1,4 +1,4 @@
-import { Container, Ticker } from "pixi.js";
+import { Assets, Container, Ticker } from "pixi.js";
 import type { System } from "./System";
 import type { BasicGameState, Game } from "./Game";
 import { Component, type ComponentConstructor } from "./Component";
@@ -48,8 +48,8 @@ export class Scene {
       this.onCreate(gs)
       this.onCreateEntity(gs)
     })
-    this.ticker.add((dt) => {
-      this.update(dt, gs)
+    this.ticker.add((ticker) => {
+      this.update(ticker.deltaTime, gs)
     })
     return this.ticker
   }
@@ -75,17 +75,15 @@ export class Scene {
     }
   }
 
-  public addSystem(system: System<any>[], type: Omit<SystemType, 'onCreateEntity'> = SystemType.UPDATE) {
-    const systemsList = this._systems.get(type as SystemType);
-    const onCreateEntityList = this._systems.get(SystemType.ON_CREATE_ENTITY)
-    if (!systemsList || !onCreateEntityList) {
-      throw new Error(`System ${type} not found`);
-    }
-    for (const sys of system) {
-      if ('onCreateEntity' in sys) {
-        onCreateEntityList.add(sys)
+  public addSystem(system: System<any>[]) {
+    for (const type of [SystemType.UPDATE, SystemType.ON_CREATE, SystemType.ON_DESTROY, SystemType.ON_CREATE_ENTITY]) {
+      const systemsList = this._systems.get(type);
+      if (!systemsList) {
+        throw new Error(`System ${type} not found`);
       }
-      systemsList.add(sys);
+      for (const sys of system) {
+        systemsList.add(sys);
+      }
     }
     this.createSystemMap();
     if (this.ticker.started && this._gameState) {
@@ -144,6 +142,7 @@ export class Scene {
       }
     });
   }
+
 
   private createSystemMap() {
     this._systems.forEach((systems) => {

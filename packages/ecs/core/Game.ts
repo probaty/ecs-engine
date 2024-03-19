@@ -1,6 +1,7 @@
-import { Application, type ApplicationOptions, type TickerCallback } from "pixi.js";
+import { Application, Assets, type ApplicationOptions, type TickerCallback } from "pixi.js";
 import type { Addon } from "./Addon";
 import { Scene } from "./Scene";
+import DefautSystems from "./DefaultSystems";
 import Stats from "stats.js";
 
 type Options = {};
@@ -11,6 +12,10 @@ export type BasicGameState = {
     height: number;
   };
   game: Game;
+  state: {
+    gameStarted: boolean
+    currentScene: Scene | null
+  }
   tickers: Set<TickerCallback<unknown>>
 } & Record<string, unknown>;
 
@@ -20,11 +25,16 @@ const defaultOptions: GameOptions = {
   eventMode: "static",
 };
 
+type AssetType = { alias: string, src: string }
+
+type PreloadAsset = AssetType | AssetType[] | Record<string, string>
+
 export class Game extends Application {
   public gameState!: BasicGameState;
 
   private _addons = new Set<Addon<unknown>>();
   private _scenes = new Map<string, Scene>()
+  private _assetPreload: AssetType[] = []
   private _currentScene: Scene | null = null
   private _stats!: Stats
   private _options: GameOptions
@@ -38,6 +48,10 @@ export class Game extends Application {
       view: {
         width: 0,
         height: 0,
+      },
+      state: {
+        gameStarted: false,
+        currentScene: null
       }
     };
   }
@@ -56,17 +70,14 @@ export class Game extends Application {
       width: this.canvas.width,
       height: this.canvas.height,
     }
-
-    //@ts-ignore
-    globalThis.__PIXI_APP__ = this;
   }
 
   /**
    * run
    */
   public async run() {
-    console.log(this.gameState);
     await Promise.all([...(this._addons.values())].map(val => val.loading))
+    await this.loadAssets()
     this._addons.forEach(addon => {
       addon.onCreate(this.gameState)
     })
@@ -77,10 +88,45 @@ export class Game extends Application {
         this.ticker.add(t)
       })
       this.ticker.add(this._stats.end)
+      this.gameState.state.gameStarted = true
       this.ticker.start()
-
-
     }
+  }
+
+
+  /**
+   * addAssetPreload
+   */
+  public addAssets(assets: PreloadAsset) {
+    if (Array.isArray(assets)) {
+      this._assetPreload.push(...assets)
+    } else if ('alias' in assets && 'src' in assets) {
+      this._assetPreload.push({ alias: assets.alias, src: assets.src })
+    } else if (typeof assets === 'object') {
+      for (const alias in assets) {
+        const src = assets[alias]
+        this._assetPreload.push({ alias, src })
+      }
+    }
+    this._addAssetsToLoader()
+  }
+
+  private _addAssetsToLoader() {
+    for (const asset of this._assetPreload) {
+      Assets.add(asset)
+    }
+  }
+
+
+  /**
+   * loadAssets
+   */
+  public async loadAssets() {
+    const keys = this._assetPreload.map(a => a.alias)
+    if (keys.length === 0) {
+      return
+    }
+    await Assets.load(keys)
   }
 
   /**
@@ -89,6 +135,8 @@ export class Game extends Application {
   public addScene(scene: Scene) {
     this._scenes.set(scene.name, scene)
     this._currentScene = scene
+    this._currentScene.addSystem(DefautSystems)
+    this.gameState.state.currentScene = scene
   }
 
   /**
