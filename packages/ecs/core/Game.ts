@@ -1,12 +1,14 @@
-import { Application, Container, Assets, type ApplicationOptions, type TickerCallback, Sprite, Graphics } from "pixi.js";
+import { Application, Container, Assets, type IApplicationOptions, type TickerCallback, Sprite, Graphics } from "pixi.js";
 import type { Addon } from "./Addon";
 import { Scene } from "./Scene";
 import DefautSystems from "./DefaultSystems";
 import Stats from "stats.js";
 import type { Viewport } from "pixi-viewport";
+import type { System } from "./System";
+import { GraphicsSystem, SpriteSystem } from "../systems";
 
 type Options = {};
-export type GameOptions = Partial<Options> & Partial<ApplicationOptions>;
+export type GameOptions = Partial<Options> & Partial<IApplicationOptions>;
 export type BasicGameState = {
   view: {
     width: number;
@@ -40,6 +42,7 @@ export class Game extends Application {
   private _stats!: Stats
   private _options: GameOptions
   private _rootStage: Container | Viewport = new Container()
+  private _coreSystems: System<any, any>[] = [SpriteSystem, GraphicsSystem]
 
   constructor(options?: GameOptions) {
     const _options = { ...defaultOptions, ...options };
@@ -128,7 +131,7 @@ export class Game extends Application {
   public addScene(scene: Scene) {
     this._scenes.set(scene.name, scene)
     this._currentScene = scene
-    this._currentScene.addSystem(DefautSystems)
+    this._currentScene.addSystem(this._coreSystems)
     this.gameState.state.currentScene = scene
   }
 
@@ -138,6 +141,7 @@ export class Game extends Application {
   public registerAddons(addons: Addon<unknown>[]) {
     for (const addon of addons) {
       this.gameState[addon.name] = {};
+      this._coreSystems.push(...addon.defaultSystems)
       this._addons.add(addon);
     }
   }
