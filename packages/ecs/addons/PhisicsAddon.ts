@@ -2,6 +2,7 @@ import type { Ticker } from "pixi.js";
 import { Addon } from "../core/Addon";
 import type { BasicGameState } from "../core/Game";
 import Box2DFactory from 'box2d-wasm'
+import { RigbodySystem } from "../systems";
 
 export type B2BoxType = typeof Box2D & EmscriptenModule
 
@@ -26,10 +27,10 @@ export type PhisicsOptions = {
 type GS = BasicGameState & PhisicsGS;
 
 const defaultOptions: Required<PhisicsOptions> = {
-  gravity: { x: 0, y: 10 },
+  gravity: { x: 0, y: 30 },
   pixelsPerMeter: 32,
-  linierDamping: 5,
-  angularDamping: 5,
+  linierDamping: 3,
+  angularDamping: 3,
   friction: 0.5,
   density: 1
 }
@@ -52,6 +53,8 @@ export class PhisicsAddon extends Addon<GS> {
     this._options = options
     this._gravity = options.gravity
     this._pixelsPerMeter = options.pixelsPerMeter
+
+    this._defaultSystems = [RigbodySystem]
   }
   public onCreate(gameState: GS): void {
     const { b2World, b2Vec2 } = this._box2d
