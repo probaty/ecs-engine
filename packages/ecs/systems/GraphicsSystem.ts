@@ -7,8 +7,6 @@ import { SizeComponent } from "../components/SizeComponent";
 export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([GraphicsComponent, SizeComponent], {
   onCreateEntity: (_, q) => {
     for (const [shape, size] of q) {
-      console.log(shape);
-
       if (shape.mounted) continue
       const g = new Graphics()
       switch (shape.shape) {
