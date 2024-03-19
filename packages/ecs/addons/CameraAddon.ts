@@ -1,7 +1,7 @@
 import { Viewport } from "pixi-viewport";
 import { Addon } from "../core/Addon";
 import type { BasicGameState } from "../core/Game";
-import { Container } from "pixi.js";
+import { FollowCameraSystem } from "../systems";
 
 export type CameraGS = {
   camera: {
@@ -11,13 +11,16 @@ export type CameraGS = {
 
 type GS = BasicGameState & CameraGS;
 
-export class CameraAddon extends Addon<GS> {
+class CameraAddon extends Addon<GS> {
   public name: string = "camera";
+  constructor() {
+    super()
+    this._defaultSystems = [FollowCameraSystem]
+  }
   public onCreate(gameState: GS): void {
     const viewport = new Viewport({
       worldWidth: 1000,
       worldHeight: 1000,
-      //@ts-ignore
       events: gameState.game.renderer.events,
     });
     gameState.camera.viewport = viewport;
@@ -28,3 +31,5 @@ export class CameraAddon extends Addon<GS> {
   }
 
 }
+
+export { CameraAddon }
