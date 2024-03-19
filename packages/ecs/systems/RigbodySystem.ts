@@ -100,12 +100,15 @@ function createShape(b2box: B2BoxType, [rig, pos, size]: ComponentsTurple, pixel
     }
     case "circle": {
       const shape = new b2box.b2CircleShape()
-      shape.set_m_radius(size.width / 2 / pixelPerMeter)
+      const width = rig.options.width ?? size.width
+      shape.set_m_radius(width / 2 / pixelPerMeter)
       return shape
     }
     case "rect": {
+      const width = rig.options.width ?? size.width
+      const height = rig.options.height ?? size.height
       const shape = new b2box.b2PolygonShape()
-      shape.SetAsBox(size.width / 2 / pixelPerMeter, size.height / 2 / pixelPerMeter, new b2Vec2(0, 0), 0)
+      shape.SetAsBox(width / 2 / pixelPerMeter, height / 2 / pixelPerMeter, new b2Vec2(0, 0), 0)
       return shape
     }
 
