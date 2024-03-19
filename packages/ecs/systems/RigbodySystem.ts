@@ -4,10 +4,23 @@ import { RigbodyComponent } from "../components/RigbodyComponent";
 import { SizeComponent } from "../components/SizeComponent";
 import { createSystem } from "../core/System";
 
+let DENSITY = 1
+let FRICTION = 0.5
+let LINIER_DAMPING = 5
+let ANGULAR_DAMPING = 5
+
 export const RigbodySystem = createSystem<[RigbodyComponent, PositionComponent, SizeComponent], PhisicsGS>(
   [RigbodyComponent, PositionComponent, SizeComponent],
+
   {
-    update(gameState, query) {
+    onCreate(gameState, query) {
+      const options = gameState.physics.options
+      DENSITY = options.density
+      FRICTION = options.friction
+      LINIER_DAMPING = options.linierDamping
+      ANGULAR_DAMPING = options.angularDamping
+    },
+    onCreateEntity(gameState, query) {
       const { world, b2box, pixelsPerMeter } = gameState.physics
       const { b2BodyDef, b2Vec2 } = b2box
       const ZERO = new b2Vec2(0, 0)
@@ -22,15 +35,24 @@ export const RigbodySystem = createSystem<[RigbodyComponent, PositionComponent, 
           body.CreateFixture(fixture)
           body.SetTransform(new b2Vec2(pos.x / pixelsPerMeter, pos.y / pixelsPerMeter), 0)
           body.SetLinearVelocity(ZERO)
+          body.SetLinearDamping(LINIER_DAMPING)
+          body.SetAngularDamping(ANGULAR_DAMPING)
           rig.body = body
         }
 
-        const transform = rig.body.GetTransform()
-        pos.x = transform.p.x * pixelsPerMeter
-        pos.y = transform.p.y * pixelsPerMeter
-        pos.angle = transform.q.GetAngle()
       }
     },
+    update(gameState, query) {
+      const { pixelsPerMeter } = gameState.physics
+      for (const [rig, pos, size] of query) {
+        if (rig.body && rig.body.IsAwake()) {
+          const transform = rig.body.GetTransform()
+          pos.x = transform.p.x * pixelsPerMeter
+          pos.y = transform.p.y * pixelsPerMeter
+          pos.angle = transform.q.GetAngle()
+        }
+      }
+    }
   }
 )
 
@@ -58,8 +80,8 @@ function createFixture(shape: Box2D.b2Shape, b2Box: B2BoxType, rig: RigbodyCompo
   switch (rig.options.type) {
     case 'dynamic':
       fixture.set_shape(shape)
-      fixture.set_density(1)
-      fixture.set_friction(0.5)
+      fixture.set_density(DENSITY)
+      fixture.set_friction(FRICTION)
       return fixture
     case "static":
     case "kinematic":
