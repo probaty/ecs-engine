@@ -5,10 +5,12 @@ import { Component } from "../core/Component";
 type RigbodyComponentArgs = {
   shape: 'line' | 'circle' | 'rect',
   type: 'dynamic' | 'static' | 'kinematic',
+  width?: number,
+  height?: number,
 }
 
 const defaultOptions: RigbodyComponentArgs = {
-  shape: 'line',
+  shape: 'rect',
   type: 'static'
 }
 
