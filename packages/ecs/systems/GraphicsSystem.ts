@@ -9,6 +9,7 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
     for (const [shape, size] of q) {
       if (shape.mounted) continue
       const g = new Graphics()
+      g.beginFill(0xDE3249)
       switch (shape.shape) {
         case "box": {
           let sizes = shape.sizes as ShapeSize<'box'>
@@ -17,7 +18,7 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
               width: size.width
             }
           }
-          g.rect(0, 0, sizes.width, sizes.width)
+          g.drawRect(0, 0, sizes.width, sizes.width)
           break
         }
         case "circle": {
@@ -27,7 +28,7 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
               radius: size.width
             }
           }
-          g.circle(sizes.radius / 2, sizes.radius / 2, sizes.radius / 2)
+          g.drawCircle(sizes.radius / 2, sizes.radius / 2, sizes.radius / 2)
           break
         }
         case "rect": {
@@ -38,13 +39,13 @@ export const GraphicsSystem = createSystem<[GraphicsComponent, SizeComponent]>([
               height: size.height
             }
           }
-          g.rect(0, 0, sizes.width, sizes.height)
+          g.drawRect(0, 0, sizes.width, sizes.height)
           break
         }
         default:
           break;
       }
-      g.fill(0xDE3249)
+      g.endFill()
       shape.pixiContainer.addChild(g)
       shape.mounted = true
     }

@@ -11,12 +11,12 @@
     "vite": "^5.1.4"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0",
-    "pixi.js": "^8.0.2"
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "box2d-wasm": "^7.0.0",
-    "pixi.js": "^8.0.2",
+    "pixi-viewport": "^5.0.2",
+    "pixi.js": "7.4.0",
     "stats.js": "^0.17.0"
   }
 }

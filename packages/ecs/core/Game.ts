@@ -1,8 +1,9 @@
-import { Application, Assets, type ApplicationOptions, type TickerCallback } from "pixi.js";
+import { Application, Container, Assets, type ApplicationOptions, type TickerCallback, Sprite, Graphics } from "pixi.js";
 import type { Addon } from "./Addon";
 import { Scene } from "./Scene";
 import DefautSystems from "./DefaultSystems";
 import Stats from "stats.js";
+import type { Viewport } from "pixi-viewport";
 
 type Options = {};
 export type GameOptions = Partial<Options> & Partial<ApplicationOptions>;
@@ -38,38 +39,29 @@ export class Game extends Application {
   private _currentScene: Scene | null = null
   private _stats!: Stats
   private _options: GameOptions
+  private _rootStage: Container | Viewport = new Container()
 
   constructor(options?: GameOptions) {
-    super();
-    this._options = { ...defaultOptions, ...options };
+    const _options = { ...defaultOptions, ...options };
+    super(_options);
+    this._options = _options
+
+    this._stats = new Stats()
+    this._stats.showPanel(0)
+    document.body.appendChild(this._stats.dom)
+    document.body.appendChild(this.view as HTMLCanvasElement);
     this.gameState = {
       game: this,
       tickers: new Set(),
       view: {
-        width: 0,
-        height: 0,
+        width: this.view.width,
+        height: this.view.height,
       },
       state: {
         gameStarted: false,
         currentScene: null
       }
     };
-  }
-
-  /**
-   * create
-   */
-  public async create() {
-    await this.init(this._options)
-    this._stats = new Stats()
-    this._stats.showPanel(0)
-    document.body.appendChild(this._stats.dom)
-
-    document.body.appendChild(this.canvas as HTMLCanvasElement);
-    this.gameState.view = {
-      width: this.canvas.width,
-      height: this.canvas.height,
-    }
   }
 
   /**
@@ -82,7 +74,8 @@ export class Game extends Application {
       addon.onCreate(this.gameState)
     })
     if (this._currentScene) {
-      this.stage.addChild(this._currentScene.scene)
+      this._rootStage.addChild(this._currentScene.scene)
+      this.stage.addChild(this._rootStage)
       this.ticker = this._currentScene.run(this.gameState, this._stats)
       this.gameState.tickers.forEach(t => {
         this.ticker.add(t)
@@ -147,5 +140,9 @@ export class Game extends Application {
       this.gameState[addon.name] = {};
       this._addons.add(addon);
     }
+  }
+
+  public set rootStage(stage: Container | Viewport) {
+    this._rootStage = stage;
   }
 }
