@@ -11,21 +11,21 @@ export const enum SystemType {
   ON_CREATE_ENTITY = 'onCreateEntity',
 }
 
-const systemMapTemplate: [SystemType, Set<System>][] = [
-  [SystemType.UPDATE, new Set()],
-  [SystemType.ON_CREATE, new Set()],
-  [SystemType.ON_DESTROY, new Set()],
-  [SystemType.ON_CREATE_ENTITY, new Set()],
+const systemMapTemplate: [SystemType, System[]][] = [
+  [SystemType.UPDATE, []],
+  [SystemType.ON_CREATE, []],
+  [SystemType.ON_DESTROY, []],
+  [SystemType.ON_CREATE_ENTITY, []],
 ];
 
 type ComponentQuery = (Component[] | Component)[];
 
 export class Scene {
-  private _systems = new Map<SystemType, Set<System>>(systemMapTemplate);
+  public name: string;
+  private _systems = new Map<SystemType, System[]>(systemMapTemplate);
   private _mappedSystems = new WeakMap<System, ComponentQuery>();
   private _entities = new Set<Entity>();
   private _gameState?: BasicGameState;
-  public name: string;
   private _scene: Container = new Container();
   public ticker = new Ticker()
 
@@ -43,13 +43,12 @@ export class Scene {
     if (stats) {
       this.ticker.add(stats.begin)
     }
-
     this.ticker.addOnce(() => {
       this.onCreate(gs)
       this.onCreateEntity(gs)
     })
-    this.ticker.add((ticker) => {
-      this.update(ticker.deltaTime, gs)
+    this.ticker.add((dt) => {
+      this.update(dt / 60, gs)
     })
     return this.ticker
   }
@@ -75,14 +74,16 @@ export class Scene {
     }
   }
 
-  public addSystem(system: System<any>[]) {
+  public addSystem(system: System<any>[], order: 1 | -1 = 1) {
     for (const type of [SystemType.UPDATE, SystemType.ON_CREATE, SystemType.ON_DESTROY, SystemType.ON_CREATE_ENTITY]) {
       const systemsList = this._systems.get(type);
       if (!systemsList) {
         throw new Error(`System ${type} not found`);
       }
-      for (const sys of system) {
-        systemsList.add(sys);
+      if (order === 1) {
+        systemsList.push(...system);
+      } else {
+        systemsList.unshift(...system);
       }
     }
     this.createSystemMap();
@@ -146,6 +147,8 @@ export class Scene {
 
   private createSystemMap() {
     this._systems.forEach((systems) => {
+      console.log(systems);
+
       systems.forEach((system) => {
         this._mappedSystems.set(system, this.findEntityByQuery.call(this, system.query));
       });

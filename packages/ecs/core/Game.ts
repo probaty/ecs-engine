@@ -131,7 +131,7 @@ export class Game extends Application {
   public addScene(scene: Scene) {
     this._scenes.set(scene.name, scene)
     this._currentScene = scene
-    this._currentScene.addSystem(this._coreSystems)
+    this._currentScene.addSystem(this._coreSystems, -1)
     this.gameState.state.currentScene = scene
   }
 
@@ -148,5 +148,13 @@ export class Game extends Application {
 
   public set rootStage(stage: Container | Viewport) {
     this._rootStage = stage;
+  }
+
+  public set coreSystems(v: System[]) {
+    this._coreSystems = v;
+  }
+
+  public get coreSystems(): System[] {
+    return this._coreSystems
   }
 }
