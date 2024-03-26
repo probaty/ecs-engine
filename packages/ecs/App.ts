@@ -1,11 +1,9 @@
 import { Application, Container, Assets, type IApplicationOptions, type TickerCallback, Sprite, Graphics } from "pixi.js";
 import type { Addon } from "./Addon";
 import { Scene } from "./Scene";
-import DefautSystems from "./DefaultSystems";
 import Stats from "stats.js";
 import type { Viewport } from "pixi-viewport";
 import type { System } from "./System";
-import { GraphicsSystem, SpriteSystem } from "../systems";
 
 type Options = {};
 export type GameOptions = Partial<Options> & Partial<IApplicationOptions>;
@@ -14,7 +12,7 @@ export type BasicGameState = {
     width: number;
     height: number;
   };
-  game: Game;
+  game: App;
   state: {
     gameStarted: boolean
     currentScene: Scene | null
@@ -32,7 +30,7 @@ type AssetType = { alias: string, src: string }
 
 type PreloadAsset = AssetType | AssetType[] | Record<string, string>
 
-export class Game extends Application {
+export class App extends Application {
   public gameState!: BasicGameState;
 
   private _addons = new Set<Addon<unknown>>();
@@ -42,7 +40,7 @@ export class Game extends Application {
   private _stats!: Stats
   private _options: GameOptions
   private _rootStage: Container | Viewport = new Container()
-  private _coreSystems: System<any, any>[] = [SpriteSystem, GraphicsSystem]
+  private _coreSystems: System<any, any>[] = []
 
   constructor(options?: GameOptions) {
     const _options = { ...defaultOptions, ...options };

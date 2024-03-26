@@ -1,5 +1,4 @@
-import type { B2BoxType } from "../addons/PhisicsAddon";
-import { Component } from "../core/Component";
+import { Component } from "@pixi-ecs/core";
 
 
 type RigbodyComponentArgs = {

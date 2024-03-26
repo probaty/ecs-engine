@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import { Component } from "../core/Component";
+import { Component } from "@pixi-ecs/core";
 
 type ShapeTypes = 'box' | 'circle' | 'rect'
 

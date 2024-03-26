@@ -1,6 +1,6 @@
 import type { CameraGS } from "../addons/CameraAddon"
 import { FollowComponent } from "../components"
-import { createSystem } from "../core/System"
+import { createSystem } from "@pixi-ecs/core"
 
 export const FollowCameraSystem = createSystem<FollowComponent, CameraGS>(FollowComponent, {
   onCreateEntity(gameState, query) {

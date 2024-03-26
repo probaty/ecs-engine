@@ -1,6 +1,5 @@
 import { Viewport } from "pixi-viewport";
-import { Addon } from "../core/Addon";
-import type { BasicGameState } from "../core/Game";
+import { Addon, type BasicGameState } from "@pixi-ecs/core";
 import { FollowCameraSystem } from "../systems";
 
 export type CameraGS = {

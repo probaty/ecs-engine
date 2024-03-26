@@ -1,5 +1,5 @@
 import type { Sprite, Texture } from "pixi.js";
-import { Component } from "../core/Component";
+import { Component } from "@pixi-ecs/core";
 
 export class SpriteComponent extends Component {
   private _spriteName: string

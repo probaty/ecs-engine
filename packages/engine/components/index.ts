@@ -4,4 +4,5 @@ export * from './PositionComponent.ts'
 export * from './ScaleComponent.ts'
 export * from './SpriteComponent.ts'
 export * from './FollowCameraComponent.ts'
+export * from "./RigbodyComponent.ts"
 
