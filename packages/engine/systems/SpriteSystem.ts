@@ -1,6 +1,6 @@
 import { Assets, Sprite, Texture } from "pixi.js";
 import { SpriteComponent } from "../components/SpriteComponent";
-import { createSystem } from "../core/System";
+import { createSystem } from "@pixi-ecs/core";
 import { SizeComponent } from "../components/SizeComponent";
 
 

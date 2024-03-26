@@ -1,6 +1,5 @@
-import type { Ticker } from "pixi.js";
-import { Addon } from "../core/Addon";
-import type { BasicGameState } from "../core/Game";
+import { Addon } from "@pixi-ecs/core";
+import type { BasicGameState } from "@pixi-ecs/core";
 import Box2DFactory from 'box2d-wasm'
 import { RigbodySystem } from "../systems";
 

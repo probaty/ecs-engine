@@ -1,4 +1,4 @@
-import type { BasicGameState } from "./Game";
+import type { BasicGameState } from "./App";
 import type { System } from "./System";
 
 export abstract class Addon<GS = BasicGameState> {

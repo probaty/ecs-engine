@@ -1,13 +1,33 @@
 {
-  "name": "ecs-engine",
+  "name": "pixi-ecs",
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "vite --host"
+    "dev": "vite --host",
+    "build": "tsup"
+  },
+  "exports": {
+    "./core": {
+      "import": "./dist/ecs/index.js",
+      "types": "./dist/ecs/index.d.ts"
+    },
+    "./addons": {
+      "import": "./dist/engine/addons/index.js",
+      "types": "./dist/engine/addons/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/engine/components/index.js",
+      "types": "./dist/engine/components/index.d.ts"
+    },
+    "./systems": {
+      "import": "./dist/engine/systems/index.js",
+      "types": "./dist/engine/systems/index.d.ts"
+    }
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/stats.js": "^0.17.3",
+    "tsup": "^8.0.2",
     "vite": "^5.1.4"
   },
   "peerDependencies": {

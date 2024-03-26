@@ -1,5 +1,5 @@
-import { Addon } from "../core/Addon";
-import type { BasicGameState } from "../core/Game";
+import { Addon } from "@pixi-ecs/core";
+import type { BasicGameState } from "@pixi-ecs/core";
 
 const keyboardMap = {
   KeyA: "a",

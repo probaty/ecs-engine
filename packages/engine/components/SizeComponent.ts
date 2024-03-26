@@ -1,5 +1,5 @@
 import type { Container } from "pixi.js";
-import { Component } from "../core/Component";
+import { Component } from "@pixi-ecs/core";
 
 export class SizeComponent extends Component {
   private _width = 0;

@@ -1,5 +1,5 @@
 import type { Container } from "pixi.js";
-import { Component } from "../core/Component";
+import { Component } from "@pixi-ecs/core";
 import type { IFollowOptions } from "pixi-viewport";
 
 const defaultOptions: Required<IFollowOptions> = {

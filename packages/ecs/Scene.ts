@@ -1,6 +1,6 @@
-import { Assets, Container, Ticker } from "pixi.js";
+import { Container, Ticker } from "pixi.js";
 import type { System } from "./System";
-import type { BasicGameState, Game } from "./Game";
+import type { BasicGameState } from "./App";
 import { Component, type ComponentConstructor } from "./Component";
 import type { Entity } from "./Entity";
 

@@ -1,5 +1,5 @@
 import type { Component, ComponentConstructor } from "./Component";
-import type { BasicGameState } from "./Game";
+import type { BasicGameState } from "./App";
 
 export type Query<T> = T[];
 

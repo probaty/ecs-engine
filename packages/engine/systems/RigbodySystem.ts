@@ -2,7 +2,7 @@ import type { B2BoxType, PhisicsGS } from "../addons/PhisicsAddon";
 import { PositionComponent } from "../components/PositionComponent";
 import { RigbodyComponent } from "../components/RigbodyComponent";
 import { SizeComponent } from "../components/SizeComponent";
-import { createSystem } from "../core/System";
+import { createSystem } from "@pixi-ecs/core";
 
 let DENSITY = 1
 let FRICTION = 0.5

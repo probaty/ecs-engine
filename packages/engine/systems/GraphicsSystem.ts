@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import { GraphicsComponent, type ShapeSize } from "../components/GraphicsComponent";
-import { createSystem } from "../core/System";
+import { createSystem } from "@pixi-ecs/core";
 import { SizeComponent } from "../components/SizeComponent";
 
 
